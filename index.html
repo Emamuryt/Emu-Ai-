@@ -187,12 +187,12 @@
 
     <script>
         // CONFIGURATION: Put your OpenRouter API Key here
-        const OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY_HERE";
+        const OPENROUTER_API_KEY = "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";
         // Choose your model (e.g., "google/gemini-2.5-flash", "meta-llama/llama-3-8b-instruct:free")
-        const MODEL_NAME = "google/gemini-2.5-flash"; 
+        const MODEL_NAME = "openai/gpt-oss-120b:free"; 
 
         // Hide banner if key is replaced
-        if(OPENROUTER_API_KEY !== "YOUR_OPENROUTER_API_KEY_HERE") {
+        if(OPENROUTER_API_KEY !== "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") {
             document.getElementById('apiBanner').style.display = 'none';
         }
 
@@ -219,7 +219,7 @@
             appendMessage(messageText, 'user-message');
             inputElement.value = "";
 
-            if (OPENROUTER_API_KEY === "YOUR_OPENROUTER_API_KEY_HERE") {
+            if (OPENROUTER_API_KEY === "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") {
                 appendMessage("Error: Please set your OpenRouter API key inside the script code.", 'ai-message');
                 return;
             }
