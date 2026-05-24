@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emu AI - Clean & Intelligent</title>
+    <!-- Tailwind CSS for clean, modern styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome for clean UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom smooth transitions for background changes */
+        body {
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-slate-900 text-slate-100 font-sans h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR: Chat History & Auth -->
+    <aside class="w-72 bg-slate-950 flex flex-col justify-between border-r border-slate-800 p-4 hidden md:flex">
+        <div>
+            <!-- Logo / Brand -->
+            <div class="flex items-center justify-between mb-6 px-2">
+                <h1 class="text-xl font-bold tracking-wide text-indigo-400"><i class="fa-solid fa-feather-pointed mr-2"></i>Emu AI</h1>
+                <button class="text-slate-400 hover:text-white"><i class="fa-regular fa-pen-to-square text-lg"></i></button>
+            </div>
+
+            <!-- New Chat Button -->
+            <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-xl transition flex items-center justify-center gap-2 mb-6 shadow-lg shadow-indigo-600/20">
+                <i class="fa-solid fa-plus text-sm"></i> New Chat
+            </button>
+
+            <!-- Chat History List -->
+            <div class="space-y-1">
+                <p class="text-xs font-semibold text-slate-500 px-2 uppercase tracking-wider mb-2">Recent Chats</p>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-900 text-slate-200 text-sm font-medium border-l-2 border-indigo-500">
+                    <i class="fa-regular fa-message text-slate-400"></i>
+                    <span class="truncate">How to build a web app</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 text-sm transition">
+                    <i class="fa-regular fa-message"></i>
+                    <span class="truncate">Python data analysis tips</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- User Profile & Auth Section -->
+        <div class="border-t border-slate-800 pt-4 space-y-3">
+            <div class="flex flex-col gap-2">
+                <button onclick="toggleModal('auth-modal')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm py-2 px-3 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> Sign In / Sign Up
+                </button>
+            </div>
+            <div class="flex items-center justify-between px-2 text-sm text-slate-400">
+                <button onclick="toggleModal('admin-modal')" class="hover:text-indigo-400 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-shield"></i> Admin Panel
+                </button>
+                <button onclick="cycleBackground()" class="hover:text-indigo-400 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-palette"></i> Theme
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CHAT INTERFACE -->
+    <main class="flex-1 flex flex-col justify-between h-full bg-transparent relative">
+        <!-- Top Navigation -->
+        <header class="h-16 border-b border-slate-800/60 flex items-center justify-between px-6 bg-slate-900/40 backdrop-blur-md">
+            <div class="flex items-center gap-3">
+                <span class="bg-indigo-500/10 text-indigo-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-indigo-500/20">v1.0-Pro</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden sm:block">
+                    <p class="text-xs text-slate-400">Model Active</p>
+                    <p class="text-sm font-medium text-emerald-400" id="current-model-display">Emu-Ultra-2026</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Chat Stream Area -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6 max-w-4xl w-full mx-auto" id="chat-stream">
+            <!-- AI Welcome Message -->
+            <div class="flex gap-4 items-start max-w-3xl">
+                <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shrink-0 shadow-md">
+                    <i class="fa-solid fa-feather-pointed text-sm"></i>
+                </div>
+                <div class="bg-slate-800/40 border border-slate-800/80 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
+                    <p class="text-sm font-semibold text-indigo-400 mb-1">Emu AI</p>
+                    <p class="text-slate-200 leading-relaxed text-sm">Hello! I am **Emu AI**. I'm fully set up visually with file sharing, customizable themes, and admin views. How can I help you design your system today?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Box Area -->
+        <div class="p-6 max-w-4xl w-full mx-auto">
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 focus-within:border-indigo-500/80 focus-within:ring-2 focus-within:ring-indigo-500/10 transition shadow-xl">
+                <textarea id="chat-input" placeholder="Ask Emu AI anything..." rows="2" class="w-full bg-transparent border-0 outline-none resize-none text-sm text-slate-100 placeholder-slate-500 px-2"></textarea>
+                
+                <div class="flex items-center justify-between border-t border-slate-900 pt-2.5 mt-2">
+                    <div class="flex items-center gap-1">
+                        <!-- File Upload Trigger -->
+                        <label for="file-upload" class="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-900 rounded-lg cursor-pointer transition" title="Upload files">
+                            <i class="fa-solid fa-paperclip text-base"></i>
+                            <input type="file" id="file-upload" class="hidden" onchange="handleFile(this)">
+                        </label>
+                        <span id="file-status" class="text-xs text-slate-500 max-w-[150px] truncate hidden"></span>
+                    </div>
+                    
+                    <button onclick="sendMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-xl font-medium text-sm transition flex items-center gap-2">
+                        Send <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            <p class="text-center text-[11px] text-slate-500 mt-3">Emu AI can make mistakes. Verify critical information.</p>
+        </div>
+    </main>
+
+    <!-- MODAL 1: AUTHENTICATION (Sign In / Sign Up) -->
+    <div id="auth-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-950 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+            <button onclick="toggleModal('auth-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-xl font-bold mb-2 text-center text-white">Welcome to Emu AI</h2>
+            <p class="text-xs text-slate-400 text-center mb-6">Sign in to sync your chat history and unlock file uploads.</p>
+            
+            <!-- Third-Party Auth Integration Buttons -->
+            <div class="space-y-2.5 mb-6">
+                <button class="w-full border border-slate-800 bg-slate-900/50 hover:bg-slate-900 text-sm font-medium py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-3">
+                    <i class="fa-brands fa-google text-red-400"></i> Continue with Google
+                </button>
+                <button class="w-full border border-slate-800 bg-slate-900/50 hover:bg-slate-900 text-sm font-medium py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-3">
+                    <i class="fa-brands fa-apple text-white"></i> Continue with Apple iOS
+                </button>
+            </div>
+
+            <div class="relative flex py-2 items-center mb-4">
+                <div class="flex-grow border-t border-slate-800"></div>
+                <span class="flex-shrink mx-4 text-slate-500 text-xs uppercase">Or Email</span>
+                <div class="flex-grow border-t border-slate-800"></div>
+            </div>
+
+            <!-- Email Form -->
+            <div class="space-y-3">
+                <input type="email" placeholder="Email Address" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm outline-none focus:border-indigo-500 text-slate-100">
+                <input type="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm outline-none focus:border-indigo-500 text-slate-100">
+                <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-sm transition mt-2 shadow-lg shadow-indigo-600/10">
+                    Log In / Sign Up
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ADMIN CONFIGURATION PANEL -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-950 border border-slate-800 w-full max-w-xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="toggleModal('admin-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex items-center gap-2 mb-2">
+                <i class="fa-solid fa-sliders text-indigo-400 text-lg"></i>
+                <h2 class="text-xl font-bold text-white">Emu AI Admin Control Dashboard</h2>
+            </div>
+            <p class="text-xs text-slate-400 mb-6">Manage system backends, API key variables, and active foundational models.</p>
+            
+            <div class="space-y-4">
+                <!-- API Configuration Toggle -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Active AI Model Engine</label>
+                    <select id="model-select" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 text-slate-200">
+                        <option value="Emu-Ultra-2026">Emu-Ultra-2026 (Default Optimized)</option>
+                        <option value="Emu-Flash-Light">Emu-Flash-Light (Speed Focused)</option>
+                        <option value="Custom-External-LLM">Custom External LLM Bridge</option>
+                    </select>
+                </div>
+
+                <!-- API Key Input fields -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Active API Routing Key</label>
+                    <input type="password" id="api-key-input" value="sk-emu-••••••••••••••••••••" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 text-slate-100">
+                    <p class="text-[11px] text-slate-500 mt-1">Changing this variable safely modifies routing variables on dynamic server structures.</p>
+                </div>
+
+                <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-4 text-xs text-slate-400 space-y-1">
+                    <p class="font-semibold text-slate-300"><i class="fa-solid fa-circle-info text-indigo-400 mr-1"></i> Developer Path Note:</p>
+                    <p>To turn this frontend into a complete solution, you can wire these inputs up to a server solution running an environment engine like Node.js or Python Flask.</p>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button onclick="toggleModal('admin-modal')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-sm transition">Cancel</button>
+                    <button onclick="saveAdminSettings()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-indigo-600/10">Save System Configurations</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT: Core Frontend Behavior Controls -->
+    <script>
+        // Modal Visibility Handler
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Chat Submission Interaction Simulation
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const stream = document.getElementById('chat-stream');
+            
+            if (!input.value.trim()) return;
+
+            // Append User Message Node
+            const userMsg = document.createElement('div');
+            userMsg.className = "flex gap-4 items-start max-w-3xl ml-auto flex-row-reverse";
+            userMsg.innerHTML = `
+                <div class="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-white shrink-0 shadow-md">
+                    <i class="fa-solid fa-user text-sm"></i>
+                </div>
+                <div class="bg-indigo-600 rounded-2xl p-4 shadow-sm text-right">
+                    <p class="text-sm font-semibold text-indigo-200 mb-1">You</p>
+                    <p class="text-white text-sm leading-relaxed">${input.value}</p>
+                </div>
+            `;
+            stream.appendChild(userMsg);
+            
+            // Clear inputs
+            input.value = '';
+            document.getElementById('file-status').classList.add('hidden');
+            
+            // Auto scroll container
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        // Easy File Upload Name Feedback Simulation
+        function handleFile(input) {
+            const status = document.getElementById('file-status');
+            if (input.files && input.files[0]) {
+                status.innerText = `📎 ${input.files[0].name}`;
+                status.classList.remove('hidden');
+            }
+        }
+
+        // Live Admin Updates
+        function saveAdminSettings() {
+            const chosenModel = document.getElementById('model-select').value;
+            document.getElementById('current-model-display').innerText = chosenModel;
+            toggleModal('admin-modal');
+            alert('System configurations localized successfully!');
+        }
+
+        // Dynamic Background Colors Cycling Handler
+        const backgroundThemes = [
+            'bg-slate-900', // Default dark
+            'bg-zinc-900',  // Neutral dark
+            'bg-indigo-950', // Deep Indigo tint
+            'bg-slate-950'  // Near true black
+        ];
+        let currentThemeIndex = 0;
+
+        function cycleBackground() {
+            const body = document.getElementById('app-body');
+            body.classList.remove(backgroundThemes[currentThemeIndex]);
+            
+            currentThemeIndex = (currentThemeIndex + 1) % backgroundThemes.length;
+            body.classList.add(backgroundThemes[currentThemeIndex]);
+        }
+    </script>
+</body>
+</html>
